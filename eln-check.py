@@ -3,6 +3,8 @@
 import argparse
 import logging
 import os
+import re
+import rpm
 
 import koji
 
@@ -18,6 +20,19 @@ def no_dist_nvr(build):
     nvr = build['nvr']
     return nvr.rsplit(".", 1)[0]
 
+def evr(build):
+    if build['epoch']:
+        epoch = str(build['epoch'])
+    else:
+        epoch = "0"
+    version = build['version']
+    p = re.compile(".(fc|eln)[0-9]*")              
+    release = re.sub(p, "", build['release'])
+    return (epoch, version, release)
+
+def is_higher(evr1, evr2):
+    return (rpm.labelCompare(evr1, evr2) > 0)
+    
 def get_build(package, tag):
     builds = session.listTagged(tag, package=package, latest=True)
     if builds:
@@ -45,7 +60,7 @@ def diff_with_rawhide(package, eln_build=None):
             
     logging.debug("Checking {0}".format(eln_build))
 
-    if no_dist_nvr(eln_build) != no_dist_nvr(rawhide_build):
+    if is_higher(evr(rawhide_build), evr(eln_build)):
         return (package, rawhide_build, eln_build)
     
     return None
