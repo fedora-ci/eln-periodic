@@ -46,7 +46,6 @@ def diff_with_rawhide(package, eln_build=None):
     logging.debug("Checking {0}".format(eln_build))
 
     if no_dist_nvr(eln_build) != no_dist_nvr(rawhide_build):
-        logging.debug("Difference found for {0}".format(package))
         return (package, rawhide_build, eln_build)
     
     return None
@@ -74,11 +73,17 @@ if __name__ == "__main__":
 
     eln_builds = get_eln_builds()
 
+    counter = 0
+
     f = open(args.output,'w')
 
     for eln_build in eln_builds:
         diff = diff_with_rawhide(package=eln_build['name'], eln_build=eln_build)
         if diff:
+            logging.info("Difference found: {0} {1}".format(diff[1]['nvr'], diff[2]['nvr']))
             f.write("{0}\n".format(diff[1]['build_id']))
+            counter += 1
 
     f.close()
+
+    logging.info("Total differences {0}".format(counter))

@@ -32,29 +32,35 @@ pipeline {
         stage('Collect stats') {
             steps {
                 sh "./eln-check.py -o $dataFile"
-		touch dataFile
 	    }
 	}
 	stage('Trigger builds') {
 	    steps {
 		script {
-		    data = File.readLines("$dataFile")
-		    limit = params.LIMIT
-		    BUILDS = data[0..<limit]
+		    def data = readFile dataFile
+		    def builds = data.readLines()
+
+		    limit = Math.min(builds.size(), params.LIMIT.toInteger())
+		    toRebuild = builds[0..<limit]
 		    
-		    env.BUILDS.each {
-			echo "$it"
-//			build (
-//			    job: 'eln-build-pipeline',
-//			    wait: false,
-//			    parameters:
-//				[
-//				string(name: 'KOJI_BUILD_ID', value: "$it"),
-//			    ]
-//			)
+		    toRebuild.each {
+			echo "Rebuilding $it"
+			build (
+			    job: 'eln-build-pipeline',
+			    wait: false,
+			    parameters:
+				[
+				string(name: 'KOJI_BUILD_ID', value: "$it"),
+			    ]
+			)
 		    }
 		}
             }
         }
+    }
+    post {
+	success {
+	    archiveArtifacts artifacts: dataFile
+	}
     }
 }
