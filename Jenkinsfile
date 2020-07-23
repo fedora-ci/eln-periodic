@@ -19,10 +19,23 @@ pipeline {
 	}
     }
 
+    options {
+        buildDiscarder(
+            logRotator(
+                numToKeepStr: '30',
+                artifactNumToKeepStr: '30'
+            )
+        )
+    }
+
+    triggers {
+        cron('H 7,12 * * *')
+    }
+
     parameters{
 	string(
 	    name: 'LIMIT',
-	    defaultValue: '0',
+	    defaultValue: '5',
 	    trim: true,
 	    description: 'Number of builds to trigger. No for no builds.'
 	    )
