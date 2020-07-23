@@ -81,6 +81,10 @@ if __name__ == "__main__":
         diff = diff_with_rawhide(package=eln_build['name'], eln_build=eln_build)
         if diff:
             logging.info("Difference found: {0} {1}".format(diff[1]['nvr'], diff[2]['nvr']))
+            if diff[0] == "kernel":
+                logging.warning("Skipping kernel")
+                continue
+            
             f.write("{0}\n".format(diff[1]['build_id']))
             counter += 1
 
