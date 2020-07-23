@@ -53,6 +53,8 @@ pipeline {
 		    def data = readFile dataFile
 		    def builds = data.readLines()
 
+		    Collections.shuffle(builds)
+		    
 		    limit = Math.min(builds.size(), params.LIMIT.toInteger())
 		    toRebuild = builds[0..<limit]
 		    
