@@ -31,7 +31,7 @@ pipeline {
     stages {
         stage('Collect stats') {
             steps {
-                sh "eln-check.py -o $dataFile"
+                sh "./eln-check.py -o $dataFile"
 		touch dataFile
 	    }
 	}
