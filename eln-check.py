@@ -46,7 +46,8 @@ def is_excluded(package):
     """
 
     excludes = [
-        "kernel",
+        "kernel", # it takes too much infra resources to try kernel builds automatically
+        "ghc",    # ghc on arm depends on LLVM7.0 which is not in eln, leaving it put until issues is resolved
     ]
     exclude_prefix = [
         "ghc-",
