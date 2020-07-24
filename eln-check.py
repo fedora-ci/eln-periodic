@@ -39,8 +39,26 @@ def get_build(package, tag):
         return builds[0]
     else:
         return None
-    
 
+def is_excluded(package):
+    """
+    Return True if package is excluded from rebuild automation.
+    """
+
+    excludes = [
+        "kernel",
+    ]
+    exclude_prefix = [
+        "ghc-",
+    ]
+
+    if package in excludes:
+        return True
+    for prefix in exclude_prefix:
+        if package.startswith(prefix):
+            return True
+    return False
+    
 def diff_with_rawhide(package, eln_build=None):
     """Compares version of ELN and Rawhide packages. If eln_build is not known,
     fetches the latest ELN build from Koji.
@@ -95,13 +113,13 @@ if __name__ == "__main__":
     for eln_build in eln_builds:
         diff = diff_with_rawhide(package=eln_build['name'], eln_build=eln_build)
         if diff:
+            counter += 1
             logging.info("Difference found: {0} {1}".format(diff[1]['nvr'], diff[2]['nvr']))
-            if diff[0] == "kernel":
-                logging.warning("Skipping kernel")
+            if is_excluded(diff[0]):
+                logging.warning("Skipping as excluded")
                 continue
             
             f.write("{0}\n".format(diff[1]['build_id']))
-            counter += 1
 
     f.close()
 
