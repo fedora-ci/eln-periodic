@@ -25,6 +25,7 @@ pipeline {
                 artifactNumToKeepStr: '30'
             )
         )
+        disableConcurrentBuilds()
     }
 
     triggers {
