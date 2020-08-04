@@ -9,6 +9,7 @@ spec:
 '''
 
 def dataFile = 'data.txt'
+def statusFile = 'status.txt'
 
 pipeline {
     agent {
@@ -44,7 +45,7 @@ pipeline {
     stages {
         stage('Collect stats') {
             steps {
-                sh "./eln-check.py -o $dataFile"
+                sh "./eln-check.py -o $dataFile -s $statusFile"
             }
         }
         stage('Trigger builds') {
@@ -75,7 +76,7 @@ pipeline {
     }
     post {
         success {
-            archiveArtifacts artifacts: dataFile
+            archiveArtifacts artifacts: "$dataFile,$statusFile"
         }
     }
 }
