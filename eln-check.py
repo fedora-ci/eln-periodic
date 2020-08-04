@@ -60,7 +60,7 @@ def is_excluded(package):
             return True
     return False
     
-def diff_with_rawhide(package, eln_build=None):
+def diff_with_rawhide(package, eln_build=None, rawhide_build=None):
     """Compares version of ELN and Rawhide packages. If eln_build is not known,
     fetches the latest ELN build from Koji.
 
@@ -70,8 +70,6 @@ def diff_with_rawhide(package, eln_build=None):
 
     if not eln_build:
         eln_build = get_build(package, "eln")
-
-    rawhide_build = get_build(package, rawhide)
 
     if not eln_build:
         logging.debug("No build found for {0} in ELN".format(package))
@@ -97,6 +95,14 @@ if __name__ == "__main__":
                         help="Filepath for the output",
                         default="rebuild.txt"
     )
+    parser.add_argument("-w", "--webpage",
+                        help="Filepath for the webpage",
+                        default="status.html"
+    )
+    parser.add_argument("-s", "--status",
+                        help="Filepath for the status",
+                        default="status.txt"
+    )
 
     args = parser.parse_args()
 
@@ -110,9 +116,11 @@ if __name__ == "__main__":
     counter = 0
 
     f = open(args.output,'w')
+    s = open(args.status,'w')
 
     for eln_build in eln_builds:
-        diff = diff_with_rawhide(package=eln_build['name'], eln_build=eln_build)
+        rawhide_build = get_build(eln_build['name'], rawhide)
+        diff = diff_with_rawhide(package=eln_build['name'], eln_build=eln_build, rawhide_build=rawhide_build)
         if diff:
             counter += 1
             logging.info("Difference found: {0} {1}".format(diff[1]['nvr'], diff[2]['nvr']))
@@ -121,7 +129,15 @@ if __name__ == "__main__":
                 continue
             
             f.write("{0}\n".format(diff[1]['build_id']))
+            if diff[2]:
+              build_status = "OLD"
+            else:
+              build_status = "NONE"
+        else:
+            build_status = "SAME"
+        s.write("%s %s %s %s\n" % (eln_build['name'], build_status, rawhide_build['nvr'], eln_build['nvr']))
 
     f.close()
+    s.close()
 
     logging.info("Total differences {0}".format(counter))
