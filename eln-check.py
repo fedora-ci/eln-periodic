@@ -21,10 +21,14 @@ def no_dist_nvr(build):
     return nvr.rsplit(".", 1)[0]
 
 def evr(build):
-    if build['epoch']:
-        epoch = str(build['epoch'])
-    else:
-        epoch = "0"
+    #if build['epoch']:
+    #    epoch = str(build['epoch'])
+    #else:
+    #    epoch = "0"
+		## epoch's are important, but we just want to
+		##   know if we need to rebuild the package
+		##   so for this, they are not important.
+    epoch = "0"
     version = build['version']
     p = re.compile(".(fc|eln)[0-9]*")              
     release = re.sub(p, "", build['release'])
