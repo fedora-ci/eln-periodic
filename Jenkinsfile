@@ -36,7 +36,7 @@ pipeline {
     parameters {
         string(
         name: 'LIMIT',
-        defaultValue: '5',
+        defaultValue: '0',
         trim: true,
         description: 'Number of builds to trigger. No for no builds.'
         )
