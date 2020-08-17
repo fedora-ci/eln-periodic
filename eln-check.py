@@ -124,6 +124,11 @@ if __name__ == "__main__":
 
     for eln_build in eln_builds:
         rawhide_build = get_build(eln_build['name'], rawhide)
+
+        if not rawhide_build:
+            logging.warning("No Rawhide build found for {0}".format(eln_build['name']))
+            continue
+    
         diff = diff_with_rawhide(package=eln_build['name'], eln_build=eln_build, rawhide_build=rawhide_build)
         if diff:
             counter += 1
