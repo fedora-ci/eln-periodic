@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>ELN Build Status</title>
+  </head>
+  <body>
+    <h1>ELN Build Status</h1>
+    <p>Page updated: {{ this_date }}
+    <h2>Details</h2>
+    <table border=1 style=width:100%>
+      <tr>
+        <th>Package Name</th><th>Status</th><th>Rawhide NVR</th><th>ELN NVR</th>
+      </tr>
+      {% for p in packages -%}
+      <tr>
+        <td>{{ p['name'] }}</td>
+        <td bgcolor="{{ p['color'] }}">{{ p['status'] }}</td>
+        <td bgcolor="{{ p['color'] }}">{{ p['raw_nvr'] }}</td>
+        <td bgcolor="{{ p['color'] }}">{{ p['eln_nvr'] }}</td>
+      </tr>
+      {% endfor -%}
+    </table>
+  </body>
+</html>
