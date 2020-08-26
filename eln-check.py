@@ -8,7 +8,7 @@ import rpm
 
 import koji
 
-rawhide = "f33"
+rawhide = "f34"
 
 # Connect to Fedora Koji instance
 session = koji.ClientSession('https://koji.fedoraproject.org/kojihub')
