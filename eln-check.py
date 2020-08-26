@@ -8,10 +8,12 @@ import rpm
 
 import koji
 
-rawhide = "f34"
-
 # Connect to Fedora Koji instance
 session = koji.ClientSession('https://koji.fedoraproject.org/kojihub')
+
+# Get versioned tag for rawhide ('f34')
+rawhide = session.getFullInheritance('rawhide')[0]['name']
+
 
 def get_eln_builds():
     return session.listTagged("eln", latest=True) 
