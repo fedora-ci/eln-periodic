@@ -85,6 +85,9 @@ def is_excluded(package):
 
     excludes = [
         "kernel", # it takes too much infra resources to try kernel builds automatically
+        "kernel-headers", # it takes too much infra resources to try kernel builds automatically
+        "kernel-tools", # it takes too much infra resources to try kernel builds automatically
+        "ipa", # freeipa is rename ipa in ELN
         "ghc",    # ghc on arm depends on LLVM7.0 which is not in eln, leaving it put until issues is resolved
     ]
     exclude_prefix = [
