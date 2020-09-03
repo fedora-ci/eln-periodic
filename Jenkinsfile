@@ -4,7 +4,7 @@ def podYAML = '''
 spec:
   containers:
   - name: koji
-    image: quay.io/bookwar/koji-client:0.0.1
+    image: quay.io/bookwar/koji-client:0.0.2
     tty: true
 '''
 
