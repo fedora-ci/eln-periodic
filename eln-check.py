@@ -5,6 +5,8 @@ import logging
 import os
 import re
 import rpm
+import datetime
+from jinja2 import Template
 
 import koji
 
@@ -150,5 +152,35 @@ if __name__ == "__main__":
 
     f.close()
     s.close()
+    os.system("sort -u -o %s %s" % (args.status, args.status))
 
     logging.info("Total differences {0}".format(counter))
+
+    # Create Webpage
+    color_same="#00FF00"
+    color_old="#FFFFCC"
+    color_none="#FF0000"
+    with open('status.html.jira') as f:
+      tmpl = Template(f.read())
+    status_packagelist = open(args.status).read().splitlines()
+    package_list = []
+    for package_line in status_packagelist:
+      ps = package_line.split()
+      this_package = {}
+      this_package['name'] = ps[0]
+      this_package['status'] = ps[1]
+      this_package['raw_nvr'] = ps[2]
+      this_package['eln_nvr'] = ps[3]
+      if ps[1] == "SAME":
+        this_package['color'] = color_same 
+      elif ps[1] == "OLD":
+        this_package['color'] = color_old 
+      else:
+        this_package['color'] = color_none
+      package_list.append(this_package)
+    w = open(args.webpage,'w')
+    w.write(tmpl.render(
+      this_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
+      packages = package_list
+      ))
+    w.close()
