@@ -52,7 +52,7 @@ pipeline {
 	stage('Trigger builds') {
 	    steps {
 		script {
-		    limit = Math.min(builds.size(), params.LIMIT.toInteger())
+		    limit = params.LIMIT.toInteger()
 		    if (limit == 0) {
 			return
 		    }
@@ -60,9 +60,11 @@ pipeline {
 		    def data = readFile dataFile
 		    def builds = data.readLines()
 
+		    cut = Math.min(builds.size(), limit)
+
 		    Collections.shuffle(builds)
 
-		    toRebuild = builds[0..<limit]
+		    toRebuild = builds[0..<cut]
 
 		    toRebuild.each {
 			echo "Rebuilding $it"
