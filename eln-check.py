@@ -6,6 +6,7 @@ import os
 import re
 import rpm
 import datetime
+import requests
 from jinja2 import Template
 
 import koji
@@ -48,6 +49,35 @@ def get_build(package, tag):
     else:
         return None
 
+def get_distro_packages():
+    """
+    Fetches the list of desired sources from Content Resolver
+    for each of the given 'arches'.
+    """
+    merged_packages = set()
+
+    distro_url = "https://tiny.distro.builders"
+    distro_view = "eln"
+    arches = ["aarch64", "armv7hl", "ppc64le", "s390x", "x86_64"]
+    which_source = ["source", "buildroot-source"]
+
+    for arch in arches:
+      for this_source in which_source:
+        url = (
+            "{distro_url}"
+            "/view-{this_source}-package-name-list--view-{distro_view}--{arch}.txt"
+        ).format(distro_url=distro_url, this_source=this_source, distro_view=distro_view, arch=arch)
+
+        logging.info("downloading {url}".format(url=url))
+
+        r = requests.get(url, allow_redirects=True)
+        for line in r.text.splitlines():
+            merged_packages.add(line)
+
+    logging.info("Found a total of {} packages".format(len(merged_packages)))
+
+    return merged_packages
+
 def is_excluded(package):
     """
     Return True if package is excluded from rebuild automation.
@@ -55,6 +85,9 @@ def is_excluded(package):
 
     excludes = [
         "kernel", # it takes too much infra resources to try kernel builds automatically
+        "kernel-headers", # it takes too much infra resources to try kernel builds automatically
+        "kernel-tools", # it takes too much infra resources to try kernel builds automatically
+        "ipa", # freeipa is rename ipa in ELN
         "ghc",    # ghc on arm depends on LLVM7.0 which is not in eln, leaving it put until issues is resolved
     ]
     exclude_prefix = [
@@ -119,27 +152,31 @@ if __name__ == "__main__":
     else:
         logging.basicConfig(level=logging.INFO)
 
-    eln_builds = get_eln_builds()
-
     counter = 0
+    packages_done = []
+
+    eln_builds = get_eln_builds()
 
     f = open(args.output,'w')
     s = open(args.status,'w')
 
     for eln_build in eln_builds:
+        if is_excluded(eln_build['name']):
+            logging.warning("Skipping %s because it is excluded" % (eln_build['name']))
+            packages_done.append(eln_build['name'])
+            continue
+
         rawhide_build = get_build(eln_build['name'], rawhide)
 
         if not rawhide_build:
             logging.warning("No Rawhide build found for {0}".format(eln_build['name']))
+            packages_done.append(eln_build['name'])
             continue
     
         diff = diff_with_rawhide(package=eln_build['name'], eln_build=eln_build, rawhide_build=rawhide_build)
         if diff:
             counter += 1
             logging.info("Difference found: {0} {1}".format(diff[1]['nvr'], diff[2]['nvr']))
-            if is_excluded(diff[0]):
-                logging.warning("Skipping as excluded")
-                continue
             
             f.write("{0}\n".format(diff[1]['build_id']))
             if diff[2]:
@@ -149,6 +186,48 @@ if __name__ == "__main__":
         else:
             build_status = "SAME"
         s.write("%s %s %s %s\n" % (eln_build['name'], build_status, rawhide_build['nvr'], eln_build['nvr']))
+        packages_done.append(eln_build['name'])
+
+    #Work on the packagelist from Content Resolver
+    overall_packagelist = get_distro_packages()
+    for package_name in overall_packagelist:
+      if not package_name in packages_done:
+        if is_excluded(package_name):
+            print("    Skipping %s because it is excluded" % (package_name))
+            packages_done.append(package_name)
+            continue
+
+        rawhide_build = get_build(package_name, rawhide)
+
+        if not rawhide_build:
+            logging.warning("No Rawhide build found for {0}".format(package_name))
+            packages_done.append(package_name)
+            continue
+
+        eln_build = get_build(package_name, "eln")
+
+        if not eln_build:
+          build_status = "NONE"
+          eln_nvr = "NONE"
+          counter += 1
+          logging.info("No ELN build for: {0}".format(package_name))
+
+          f.write("{0}\n".format(rawhide_build['build_id']))
+
+        else:
+            diff = diff_with_rawhide(package_name, eln_build=eln_build, rawhide_build=rawhide_build)
+            if diff:
+                if diff[2]:
+                    build_status = "OLD"
+                    eln_nvr = eln_build['nvr']
+                else:
+                    build_status = "NONE"
+                    eln_nvr = "NONE"
+            else:
+                build_status = "SAME"
+                eln_nvr = eln_build['nvr']
+        s.write("%s %s %s %s\n" % (package_name, build_status, rawhide_build['nvr'], eln_nvr))
+        packages_done.append(package_name)
 
     f.close()
     s.close()
