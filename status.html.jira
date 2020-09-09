@@ -1,10 +1,28 @@
 <html>
   <head>
     <title>ELN Build Status</title>
+    <style>
+      table {
+        border-spacing: 0;
+      }
+      th, td {
+        text-align: left;
+        padding: 10px;
+      }
+      tr:nth-child(even) {
+        background-color: #f2f2f2
+      }
+    </style>
   </head>
   <body>
     <h1>ELN Build Status</h1>
     <p>Page updated: {{ this_date }}
+    <h2>Overview</h2>
+    <table border=0>
+      <tr><td bgcolor="#00FF00">SAME</td><td>{{ count_same }}</td><td>Rawhide and ELN builds are caught up</td></tr>
+      <tr><td bgcolor="#FFFFCC">OLD</td><td>{{ count_old }}</td><td>ELN build is older than Rawhides</td></tr>
+      <tr><td bgcolor="#FF0000">NONE</td><td>{{ count_none }}</td><td>There is no ELN build</td></tr>
+    </table>
     <h2>Details</h2>
     <table border=1 style=width:100%>
       <tr>

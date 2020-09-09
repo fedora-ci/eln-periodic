@@ -243,6 +243,9 @@ if __name__ == "__main__":
       tmpl = Template(f.read())
     status_packagelist = open(args.status).read().splitlines()
     package_list = []
+    counter_same = 0
+    counter_old = 0
+    counter_none = 0
     for package_line in status_packagelist:
       ps = package_line.split()
       this_package = {}
@@ -251,15 +254,21 @@ if __name__ == "__main__":
       this_package['raw_nvr'] = ps[2]
       this_package['eln_nvr'] = ps[3]
       if ps[1] == "SAME":
-        this_package['color'] = color_same 
+        this_package['color'] = color_same
+        counter_same += 1
       elif ps[1] == "OLD":
-        this_package['color'] = color_old 
+        this_package['color'] = color_old
+        counter_old += 1
       else:
         this_package['color'] = color_none
+        counter_none += 1
       package_list.append(this_package)
     w = open(args.webpage,'w')
     w.write(tmpl.render(
       this_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
+      count_same = counter_same,
+      count_old = counter_old,
+      count_none = counter_none,
       packages = package_list
       ))
     w.close()
