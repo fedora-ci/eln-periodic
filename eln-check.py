@@ -80,7 +80,7 @@ def get_distro_packages():
 
 def is_excluded(package):
     """
-    Return True if package is excluded from rebuild automation.
+    Return True if package is permanently excluded from rebuild automation.
     """
 
     excludes = [
@@ -88,10 +88,8 @@ def is_excluded(package):
         "kernel-headers", # it takes too much infra resources to try kernel builds automatically
         "kernel-tools", # it takes too much infra resources to try kernel builds automatically
         "ipa", # freeipa is rename ipa in ELN
-        "ghc",    # ghc on arm depends on LLVM7.0 which is not in eln, leaving it put until issues is resolved
     ]
     exclude_prefix = [
-        "ghc-",
     ]
 
     if package in excludes:
@@ -100,6 +98,28 @@ def is_excluded(package):
         if package.startswith(prefix):
             return True
     return False
+
+def is_on_hold(package):
+    """
+    Return True if package is temporarily on hold from rebuild automation.
+    """
+
+    hold = [
+        "ghc",    # ghc on arm depends on LLVM7.0 which is not in eln, leaving it put until issues is resolved
+    ]
+    hold_prefix = [
+        "ghc-",
+        "rust-",
+        "rubygems-",
+    ]
+
+    if package in hold:
+        return True
+    for prefix in hold_prefix:
+        if package.startswith(prefix):
+            return True
+    return False
+    
     
 def diff_with_rawhide(package, eln_build=None, rawhide_build=None):
     """Compares version of ELN and Rawhide packages. If eln_build is not known,
@@ -175,10 +195,12 @@ if __name__ == "__main__":
     
         diff = diff_with_rawhide(package=eln_build['name'], eln_build=eln_build, rawhide_build=rawhide_build)
         if diff:
-            counter += 1
-            logging.info("Difference found: {0} {1}".format(diff[1]['nvr'], diff[2]['nvr']))
-            
-            f.write("{0}\n".format(diff[1]['build_id']))
+            if is_on_hold(eln_build['name']):
+                logging.info("Held Package Difference found: {0} {1}".format(diff[1]['nvr'], diff[2]['nvr']))
+            else:
+                counter += 1
+                logging.info("Difference found: {0} {1}".format(diff[1]['nvr'], diff[2]['nvr']))
+                f.write("{0}\n".format(diff[1]['build_id']))
             if diff[2]:
               build_status = "OLD"
             else:
@@ -209,10 +231,12 @@ if __name__ == "__main__":
         if not eln_build:
           build_status = "NONE"
           eln_nvr = "NONE"
-          counter += 1
-          logging.info("No ELN build for: {0}".format(package_name))
-
-          f.write("{0}\n".format(rawhide_build['build_id']))
+          if is_on_hold(package_name):
+            logging.info("Held Package not found: {0}".format(package_name))
+          else:
+            counter += 1
+            logging.info("No ELN build for: {0}".format(package_name))
+            f.write("{0}\n".format(rawhide_build['build_id']))
 
         else:
             diff = diff_with_rawhide(package_name, eln_build=eln_build, rawhide_build=rawhide_build)
