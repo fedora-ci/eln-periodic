@@ -68,13 +68,13 @@ def get_distro_packages():
             "/view-{this_source}-package-name-list--view-{distro_view}--{arch}.txt"
         ).format(distro_url=distro_url, this_source=this_source, distro_view=distro_view, arch=arch)
 
-        logging.info("downloading {url}".format(url=url))
+        logging.debug("downloading {url}".format(url=url))
 
         r = requests.get(url, allow_redirects=True)
         for line in r.text.splitlines():
             merged_packages.add(line)
 
-    logging.info("Found a total of {} packages".format(len(merged_packages)))
+    logging.debug("Found a total of {} packages".format(len(merged_packages)))
 
     return merged_packages
 
@@ -164,6 +164,10 @@ if __name__ == "__main__":
                         help="Filepath for the status",
                         default="status.txt"
     )
+    parser.add_argument("-u", "--untag",
+                        help="Filepath for the untag list",
+                        default="untag.txt"
+    )
 
     args = parser.parse_args()
 
@@ -175,12 +179,18 @@ if __name__ == "__main__":
     counter = 0
     packages_done = []
 
+    overall_packagelist = get_distro_packages()
     eln_builds = get_eln_builds()
 
     f = open(args.output,'w')
     s = open(args.status,'w')
+    u = open(args.untag,'w')
 
     for eln_build in eln_builds:
+        if not eln_build['name'] in overall_packagelist:
+            logging.warning("Adding %s to the untag list" % (eln_build['name']))
+            u.write("{0}\n".format(eln_build['name']))
+
         if is_excluded(eln_build['name']):
             logging.warning("Skipping %s because it is excluded" % (eln_build['name']))
             packages_done.append(eln_build['name'])
@@ -211,7 +221,6 @@ if __name__ == "__main__":
         packages_done.append(eln_build['name'])
 
     #Work on the packagelist from Content Resolver
-    overall_packagelist = get_distro_packages()
     for package_name in overall_packagelist:
       if not package_name in packages_done:
         if is_excluded(package_name):
@@ -255,6 +264,7 @@ if __name__ == "__main__":
 
     f.close()
     s.close()
+    u.close()
     os.system("sort -u -o %s %s" % (args.status, args.status))
 
     logging.info("Total differences {0}".format(counter))
