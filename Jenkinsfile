@@ -9,6 +9,7 @@ spec:
 '''
 
 def dataFile = 'to_rebuild.txt'
+def untagFile = 'to_untag.txt'
 def statusFile = 'status.txt'
 def statusRenderedFile = 'status.html'
 
@@ -46,7 +47,7 @@ pipeline {
     stages {
 	stage('Collect stats') {
 	    steps {
-		sh "./eln-check.py -o $dataFile -s $statusFile"
+		sh "./eln-check.py -o $dataFile -s $statusFile -u $untagFile"
 	    }
 	}
 	stage('Trigger builds') {
