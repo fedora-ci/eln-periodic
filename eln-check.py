@@ -262,12 +262,12 @@ if __name__ == "__main__":
         s.write("%s %s %s %s\n" % (package_name, build_status, rawhide_build['nvr'], eln_nvr))
         packages_done.append(package_name)
 
+    u.close()
     f.close()
     s.close()
-    u.close()
-    os.system("sort -u -o %s %s" % (args.status, args.status))
 
     logging.info("Total differences {0}".format(counter))
+    os.system("sort -u -o %s %s" % (args.status, args.status))
 
     # Create Webpage
     color_same="#00FF00"
