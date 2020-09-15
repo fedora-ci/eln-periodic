@@ -88,8 +88,10 @@ def is_excluded(package):
         "kernel-headers", # it takes too much infra resources to try kernel builds automatically
         "kernel-tools", # it takes too much infra resources to try kernel builds automatically
         "ipa", # freeipa is rename ipa in ELN
+        "shim", # shim has its own building proceedure
     ]
     exclude_prefix = [
+        "shim-",
     ]
 
     if package in excludes:
@@ -105,10 +107,8 @@ def is_on_hold(package):
     """
 
     hold = [
-        "ghc",    # ghc on arm depends on LLVM7.0 which is not in eln, leaving it put until issues is resolved
     ]
     hold_prefix = [
-        "ghc-",
         "rust-",
         "rubygems-",
     ]
