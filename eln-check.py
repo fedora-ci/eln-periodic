@@ -303,6 +303,7 @@ if __name__ == "__main__":
       count_same = counter_same,
       count_old = counter_old,
       count_none = counter_none,
+      count_total = counter_same + counter_old + counter_none,
       packages = package_list
       ))
     w.close()
