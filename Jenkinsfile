@@ -84,7 +84,7 @@ pipeline {
     }
     post {
 	success {
-	    archiveArtifacts artifacts: "$dataFile,$statusFile,$statusRenderedFile"
+	    archiveArtifacts artifacts: "$dataFile,$statusFile,$statusRenderedFile,$untagFile"
 	}
     }
 }
