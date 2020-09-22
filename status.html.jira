@@ -19,10 +19,30 @@
     <p>Page updated: {{ this_date }}
     <h2>Overview</h2>
     <table border=0>
-      <tr><td bgcolor="#00FF00">SAME</td><td>{{ count_same }}</td><td>Rawhide and ELN builds are caught up</td></tr>
-      <tr><td bgcolor="#FFFFCC">OLD</td><td>{{ count_old }}</td><td>ELN build is older than Rawhides</td></tr>
-      <tr><td bgcolor="#FF0000">NONE</td><td>{{ count_none }}</td><td>There is no ELN build</td></tr>
-      <tr><td>TOTAL</td><td>{{ count_total }}</td><td>Total ELN packages</td></tr>
+      <tr>
+        <td bgcolor="#00FF00">SAME</td>
+        <td style="text-align:right">{{ count_same }}</td>
+        <td style="text-align:right">{{ percent_same }}</td>
+        <td>Rawhide and ELN builds are caught up</td>
+      </tr>
+      <tr>
+        <td bgcolor="#FFFFCC">OLD</td>
+        <td style="text-align:right">{{ count_old }}</td>
+        <td style="text-align:right">{{ percent_old }}</td>
+        <td>ELN build is older than Rawhides</td>
+      </tr>
+      <tr>
+        <td bgcolor="#FF0000">NONE</td>
+        <td style="text-align:right">{{ count_none }}</td>
+        <td style="text-align:right">{{ percent_none }}</td>
+        <td>There is no ELN build</td>
+      </tr>
+      <tr>
+        <td>TOTAL</td>
+        <td style="text-align:right">{{ count_total }}</td>
+        <td style="text-align:right">100.00%</td>
+        <td>Total ELN packages</td>
+      </tr>
     </table>
     <h2>Details</h2>
     <table border=1 style=width:100%>

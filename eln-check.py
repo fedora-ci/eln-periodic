@@ -168,6 +168,10 @@ if __name__ == "__main__":
                         help="Filepath for the untag list",
                         default="untag.txt"
     )
+    parser.add_argument("-r", "--successrate",
+                        help="Filepath for the success rate percentage webpage",
+                        default="successrate.txt"
+    )
 
     args = parser.parse_args()
 
@@ -297,13 +301,29 @@ if __name__ == "__main__":
         this_package['color'] = color_none
         counter_none += 1
       package_list.append(this_package)
+    counter_total = counter_same + counter_old + counter_none
+    if counter_total == 0:
+        percentage_same = "?%"
+        percentage_old = "?%"
+        percentage_none = "?%"
+    else:
+        percentage_same = "{:.2%}".format(counter_same / counter_total)
+        percentage_old = "{:.2%}".format(counter_old / counter_total)
+        percentage_none = "{:.2%}".format(counter_none / counter_total)
     w = open(args.webpage,'w')
     w.write(tmpl.render(
       this_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
       count_same = counter_same,
+      percent_same = percentage_same,
       count_old = counter_old,
+      percent_old = percentage_old,
       count_none = counter_none,
-      count_total = counter_same + counter_old + counter_none,
+      percent_none = percentage_none,
+      count_total = counter_total,
       packages = package_list
       ))
     w.close()
+
+    r = open(args.successrate,'w')
+    r.write("{0}\n".format(percentage_same))
+    r.close()
