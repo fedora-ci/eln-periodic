@@ -12,6 +12,7 @@ def dataFile = 'to_rebuild.txt'
 def untagFile = 'to_untag.txt'
 def statusFile = 'status.txt'
 def statusRenderedFile = 'status.html'
+def successrateFile = 'successrate.txt'
 
 pipeline {
     agent {
@@ -47,7 +48,7 @@ pipeline {
     stages {
 	stage('Collect stats') {
 	    steps {
-		sh "./eln-check.py -o $dataFile -s $statusFile -u $untagFile"
+		sh "./eln-check.py -o $dataFile -s $statusFile -u $untagFile -r $successrateFile"
 	    }
 	}
 	stage('Trigger builds') {
@@ -84,7 +85,7 @@ pipeline {
     }
     post {
 	success {
-	    archiveArtifacts artifacts: "$dataFile,$statusFile,$statusRenderedFile,$untagFile"
+	    archiveArtifacts artifacts: "$dataFile,$statusFile,$statusRenderedFile,$untagFile,$successrateFile"
 	}
     }
 }
