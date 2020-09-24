@@ -107,10 +107,9 @@ def is_on_hold(package):
     """
 
     hold = [
+        "freeipa", # freeipa always shows up that it needs to be built
     ]
     hold_prefix = [
-        "rust-",
-        "rubygems-",
     ]
 
     if package in hold:
