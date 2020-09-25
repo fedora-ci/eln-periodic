@@ -303,7 +303,7 @@ if __name__ == "__main__":
         else:
             this_package['color'] = color_none
             counter_none += 1
-            package_list.append(this_package)
+        package_list.append(this_package)
     counter_total = counter_same + counter_old + counter_none
     if counter_total == 0:
         percentage_same = "?%"
