@@ -8,6 +8,7 @@ spec:
     tty: true
 '''
 
+def buildableFile = 'buildable-eln-packages.txt'
 def dataFile = 'to_rebuild.txt'
 def untagFile = 'to_untag.txt'
 def statusFile = 'status.txt'
@@ -85,7 +86,7 @@ pipeline {
     }
     post {
 	success {
-	    archiveArtifacts artifacts: "$dataFile,$statusFile,$statusRenderedFile,$untagFile,$successrateFile"
+	    archiveArtifacts artifacts: "$dataFile,$statusFile,$statusRenderedFile,$untagFile,$successrateFile,$buildableFile"
 	}
     }
 }
