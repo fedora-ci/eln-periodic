@@ -192,7 +192,7 @@ if __name__ == "__main__":
     # Create the buildable list
     with open("buildable-eln-packages.txt", 'w') as b:
         for package_name in overall_packagelist:
-            if package_name not is_on_hold(package_name) and not is_excluded(package_name):
+            if package_name and not is_on_hold(package_name) and not is_excluded(package_name):
                 b.write("{0}\n".format(package_name))
 
     f = open(args.output, 'w')
