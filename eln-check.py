@@ -313,19 +313,17 @@ if __name__ == "__main__":
         percentage_same = "{:.2%}".format(counter_same / counter_total)
         percentage_old = "{:.2%}".format(counter_old / counter_total)
         percentage_none = "{:.2%}".format(counter_none / counter_total)
-    w = open(args.webpage, 'w')
-    w.write(tmpl.render(
-        this_date=datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
-        count_same=counter_same,
-        percent_same=percentage_same,
-        count_old=counter_old,
-        percent_old=percentage_old,
-        count_none=counter_none,
-        percent_none=percentage_none,
-        count_total=counter_total,
-        packages=package_list))
-    w.close()
+    with open(args.webpage, 'w') as w:
+        w.write(tmpl.render(
+            this_date=datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
+            count_same=counter_same,
+            percent_same=percentage_same,
+            count_old=counter_old,
+            percent_old=percentage_old,
+            count_none=counter_none,
+            percent_none=percentage_none,
+            count_total=counter_total,
+            packages=package_list))
 
-    r = open(args.successrate, 'w')
-    r.write("{0}\n".format(percentage_same))
-    r.close()
+    with open(args.successrate, 'w') as r:
+        r.write("{0}\n".format(percentage_same))
