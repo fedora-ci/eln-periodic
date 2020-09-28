@@ -144,11 +144,16 @@ class Comparison:
         stats["total"] = sum(stats.values())
         return stats
 
-    def render(self, tmpl_path="templates", output_path="output"):
+    def render(self, tmpl_path="templates", output_path="output", fmt="all"):
         os.makedirs(output_path, exist_ok=True)
 
         j2_env = jinja2.Environment(loader=jinja2.FileSystemLoader(tmpl_path))
         templates = j2_env.list_templates(extensions="j2")
+        if fmt != "all":
+            fmtlist = fmt.split(",")
+            templates = [
+                name for name in templates if name.split(".")[-2] in fmtlist
+            ]
 
         for tmpl_name in templates:
             tmpl = j2_env.get_template(tmpl_name)
@@ -159,8 +164,10 @@ class Comparison:
                 stats=self.count(),
                 date=datetime.datetime.now()
             ).dump(
-                os.path.join(output_path, tmpl_name[:-3]
-                             )
+                os.path.join(
+                    output_path,
+                    tmpl_name[:-3],
+                )
             )
 
 
@@ -241,6 +248,12 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "-f", "--format",
+        default="all",
+        help="Comma-separated list of output formats. Supported: json, html, txt, all.",
+    )
+
+    parser.add_argument(
         "-o", "--output",
         default="output",
         help="Path where to store rendered results",
@@ -284,4 +297,4 @@ if __name__ == "__main__":
 
     C.compare_all()
     logging.info(C.count())
-    C.render(output_path=args.output)
+    C.render(output_path=args.output, fmt=args.format)
