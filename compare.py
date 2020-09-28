@@ -166,6 +166,20 @@ class Comparison:
         stats["total"] = sum(stats.values())
         return stats
 
+    def results_by_status(self):
+        """Return dictionary of lists of packages from comparison
+
+        Dictionary key is the status of the comparison. Dictionary value is a
+        list of tuples describing the package and nvr's.
+        """
+        data = {}
+        for package, info in self.results.items():
+            if info["status"] not in data:
+                data[info["status"]] = []
+            data[info["status"]].append((package, info["nvr1"], info["nvr2"]))
+
+        return data
+
     def render(self, tmpl_path="templates", output_path="output", fmt="all"):
         os.makedirs(output_path, exist_ok=True)
 
@@ -297,7 +311,7 @@ if __name__ == "__main__":
         "packages",
         nargs='*',
         default=None,
-        help="Optional list of packages to compare",
+        help="Optional list of packages to compare. Disables caching.",
     )
 
     args = parser.parse_args()
@@ -312,13 +326,28 @@ if __name__ == "__main__":
 
     if args.packages:
         content = args.packages
+        args.cache = False
     else:
         content = sorted(get_content())
 
     C = Comparison(content, source1, source2)
 
     C.compare_content()
-    extras = C.add_extras()
+    C.add_extras()
 
     logging.info(C.count())
     C.render(output_path=args.output, fmt=args.format)
+
+    with open("content.txt", "w") as f:
+        for pkg_name in content:
+            f.write(pkg_name + "\n")
+
+    results = C.results_by_status()
+
+    with open("untag.txt", "w") as f:
+        for pkg_info in results.get("EXTRA", []):
+            f.write(pkg_info[2] + "\n")
+
+    with open("rebuild.txt", "w") as f:
+        for pkg_info in results.get("NONE", []) + results.get("OLD", []):
+            f.write(pkg_info[1] + "\n")
