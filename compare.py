@@ -72,12 +72,13 @@ class BuildSource:
         builds = self.infra.listTagged(self.tag, latest=True)
         for build in builds:
             self.cache[build["name"]] = build
-        logging.debug(f'Done Make cache for {self}')
+        logging.debug(f'Done making cache for {self}')
 
 
 class Comparison:
 
     status = {
+        -3: "EXTRA",
         -2: "ERROR",
         -1: "NEW",
         0: "SAME",
@@ -93,7 +94,7 @@ class Comparison:
         self.results = {}
 
     def compare_one(self, package):
-        """Returm comparison data for a package
+        """Return comparison data for a package
 
         Return dictionary with items: status, nvr1, nvr2.
         """
@@ -127,6 +128,18 @@ class Comparison:
                 "nvr1": build1["nvr"],
                 "nvr2": build2["nvr"],
         }
+
+    def add_extras(self):
+        """Add packages from source2 which don't belong to the content set"""
+
+        for package, build in self.source2.cache.items():
+            if package not in self.content:
+                logging.info(f'Extras package {package} found in {self.source2}')
+                self.results[package] = {
+                    "status": self.status[-3],
+                    "nvr1": None,
+                    "nvr2": build["nvr"],
+                }
 
     def compare_all(self):
         for package in content:
@@ -296,5 +309,6 @@ if __name__ == "__main__":
     C = Comparison(content, source1, source2)
 
     C.compare_all()
+    C.add_extras()
     logging.info(C.count())
     C.render(output_path=args.output, fmt=args.format)
