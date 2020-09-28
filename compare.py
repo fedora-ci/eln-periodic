@@ -130,18 +130,27 @@ class Comparison:
         }
 
     def add_extras(self):
-        """Add packages from source2 which don't belong to the content set"""
+        """Add packages from source2 which don't belong to the content set to the comparison with the status EXTRA
+
+        Return dictionary of comparison items for such packages.
+        """
+
+        extras = {}
 
         for package, build in self.source2.cache.items():
             if package not in self.content:
                 logging.info(f'Extras package {package} found in {self.source2}')
-                self.results[package] = {
+                extras[package] = {
                     "status": self.status[-3],
                     "nvr1": None,
                     "nvr2": build["nvr"],
                 }
 
-    def compare_all(self):
+        self.results.update(extras)
+
+        return extras
+
+    def compare_content(self):
         for package in content:
             logging.debug(f'Processing package {package}')
             self.results[package] = self.compare_one(package)
@@ -308,7 +317,8 @@ if __name__ == "__main__":
 
     C = Comparison(content, source1, source2)
 
-    C.compare_all()
-    C.add_extras()
+    C.compare_content()
+    extras = C.add_extras()
+
     logging.info(C.count())
     C.render(output_path=args.output, fmt=args.format)

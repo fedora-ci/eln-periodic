@@ -10,6 +10,9 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.css">
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js"></script>
     <style>
+      .extra {
+	  background-color: #d9d2e9 !important;
+      }
       .error {
 	  background-color: #cccccc !important;
       }
@@ -37,8 +40,6 @@
 	<td class="{{status}}">{{status}}: {{counter}}</td>
 	{% endfor -%}
       </tr>
-    </table>
-
     </table>
     <h2>Details</h2>
     <table id="comparison" style="compact">
