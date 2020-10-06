@@ -14,6 +14,7 @@ def untagFile = 'to_untag.txt'
 def statusFile = 'status.txt'
 def statusRenderedFile = 'status.html'
 def successrateFile = 'successrate.txt'
+def ftbfsFile = 'ftbfs.txt'
 
 pipeline {
     agent {
@@ -70,7 +71,7 @@ pipeline {
 	}
 	stage('Collect stats') {
 	    steps {
-		sh "./eln-check.py -o $dataFile -s $statusFile -u $untagFile -r $successrateFile"
+		sh "./eln-check.py -o $dataFile -s $statusFile -u $untagFile -r $successrateFile -f $ftbfsFile"
 	    }
 	}
 	stage('Trigger builds') {
@@ -107,7 +108,7 @@ pipeline {
     }
     post {
 	success {
-	    archiveArtifacts artifacts: "$dataFile,$statusFile,$statusRenderedFile,$untagFile,$successrateFile,$buildableFile,eln/output/*"
+	    archiveArtifacts artifacts: "$dataFile,$statusFile,$statusRenderedFile,$untagFile,$successrateFile,$buildableFile,$ftbfsFile,eln/output/*"
 	}
     }
 }

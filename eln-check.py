@@ -176,6 +176,10 @@ if __name__ == "__main__":
                         help="Filepath for the success rate percentage webpage",
                         default="successrate.txt")
 
+    parser.add_argument("-f", "--ftbfs",
+                        help="Filepath for the list of FTBFS packages to report",
+                        default="ftbfs.txt")
+
     args = parser.parse_args()
 
     if args.verbose:
@@ -195,9 +199,10 @@ if __name__ == "__main__":
             if package_name and not is_on_hold(package_name) and not is_excluded(package_name):
                 b.write("{0}\n".format(package_name))
 
-    f = open(args.output, 'w')
+    o = open(args.output, 'w')
     s = open(args.status, 'w')
     u = open(args.untag, 'w')
+    f = open(args.ftbfs, 'w')
 
     for eln_build in eln_builds:
         if not eln_build['name'] in overall_packagelist:
@@ -223,7 +228,7 @@ if __name__ == "__main__":
             else:
                 counter += 1
                 logging.info("Difference found: {0} {1}".format(diff[1]['nvr'], diff[2]['nvr']))
-                f.write("{0}\n".format(diff[1]['build_id']))
+                o.write("{0}\n".format(diff[1]['build_id']))
             if diff[2]:
                 build_status = "OLD"
             else:
@@ -258,7 +263,8 @@ if __name__ == "__main__":
                 else:
                     counter += 1
                     logging.info("No ELN build for: {0}".format(package_name))
-                    f.write("{0}\n".format(rawhide_build['build_id']))
+                    o.write("{0}\n".format(rawhide_build['build_id']))
+                    f.write("{0}\n".format(package_name))
 
             else:
                 diff = diff_with_rawhide(package_name, eln_build=eln_build, rawhide_build=rawhide_build)
@@ -276,11 +282,13 @@ if __name__ == "__main__":
             packages_done.append(package_name)
 
     u.close()
-    f.close()
+    o.close()
     s.close()
+    f.close()
 
     logging.info("Total differences {0}".format(counter))
     os.system("sort -u -o %s %s" % (args.status, args.status))
+    os.system("sort -u -o %s %s" % (args.ftbfs, args.ftbfs))
 
     # Create Webpage
     color_same = "#00FF00"
