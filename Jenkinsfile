@@ -47,6 +47,27 @@ pipeline {
     }
 
     stages {
+	stage('New stats') {
+	    steps {
+		checkout changelog: false, poll: false, scm: [
+		    $class: 'GitSCM',
+		    doGenerateSubmoduleConfigurations: false,
+		    extensions: [
+			[
+			    $class: 'RelativeTargetDirectory',
+			    relativeTargetDir: 'eln'
+			]
+		    ],
+		    userRemoteConfigs: [
+			[
+			    url: 'https://github.com/fedora-eln/eln'
+			]
+		    ]
+		]
+
+		sh "cd eln/ && ./compare/compare.py rawhide eln"
+	    }
+	}
 	stage('Collect stats') {
 	    steps {
 		sh "./eln-check.py -o $dataFile -s $statusFile -u $untagFile -r $successrateFile"
@@ -86,7 +107,7 @@ pipeline {
     }
     post {
 	success {
-	    archiveArtifacts artifacts: "$dataFile,$statusFile,$statusRenderedFile,$untagFile,$successrateFile,$buildableFile"
+	    archiveArtifacts artifacts: "$dataFile,$statusFile,$statusRenderedFile,$untagFile,$successrateFile,$buildableFile,eln/output/*"
 	}
     }
 }
