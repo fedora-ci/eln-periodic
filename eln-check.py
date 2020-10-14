@@ -91,9 +91,10 @@ def is_excluded(package):
     """
     excludes = [
         "kernel",  # it takes too much infra resources to try kernel builds automatically
-        "kernel-headers",  # it takes too much infra resources to try kernel builds automatically
-        "kernel-tools",  # it takes too much infra resources to try kernel builds automatically
+        "kernel-headers",  # In RHEL kernel-headers is a sub-package of kernel
+        "kernel-tools",  # In RHEL kernel-tools is a sub-package of kernel
         "ipa",  # freeipa is rename ipa in ELN
+        "rubygems",  # In RHEL rubygems is a sub-package of ruby
         "shim",  # shim has its own building proceedure
     ]
     exclude_prefix = [
