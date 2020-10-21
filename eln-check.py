@@ -96,6 +96,7 @@ def is_excluded(package):
         "ipa",  # freeipa is rename ipa in ELN
         "rubygems",  # In RHEL rubygems is a sub-package of ruby
         "shim",  # shim has its own building proceedure
+        "gcc",  # ELN will use GCC 11 snapshots earlier than rawhide
     ]
     exclude_prefix = [
         "shim-",
