@@ -13,7 +13,7 @@ def dataFile = 'to_rebuild.txt'
 def untagFile = 'to_untag.txt'
 def statusFile = 'status.txt'
 def statusRenderedFile = 'status.html'
-def successrateFile = 'successrate.txt'
+def successrateFile = 'successrate.html'
 
 pipeline {
     agent {

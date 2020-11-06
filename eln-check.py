@@ -176,7 +176,7 @@ if __name__ == "__main__":
 
     parser.add_argument("-r", "--successrate",
                         help="Filepath for the success rate percentage webpage",
-                        default="successrate.txt")
+                        default="successrate.html")
 
     args = parser.parse_args()
 
@@ -289,7 +289,9 @@ if __name__ == "__main__":
     color_old = "#FFFFCC"
     color_none = "#FF0000"
     with open('status.html.jira') as f:
-        tmpl = Template(f.read())
+        status_tmpl = Template(f.read())
+    with open('successrate.html.jira') as f:
+        successrate_tmpl = Template(f.read())
     status_packagelist = open(args.status).read().splitlines()
     package_list = []
     counter_same = 0
@@ -322,7 +324,7 @@ if __name__ == "__main__":
         percentage_old = "{:.2%}".format(counter_old / counter_total)
         percentage_none = "{:.2%}".format(counter_none / counter_total)
     with open(args.webpage, 'w') as w:
-        w.write(tmpl.render(
+        w.write(status_tmpl.render(
             this_date=datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
             count_same=counter_same,
             percent_same=percentage_same,
@@ -334,4 +336,4 @@ if __name__ == "__main__":
             packages=package_list))
 
     with open(args.successrate, 'w') as r:
-        r.write("{0}\n".format(percentage_same))
+        r.write(successrate_tmpl.render(percent_same=percentage_same))
