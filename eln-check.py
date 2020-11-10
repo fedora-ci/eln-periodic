@@ -95,6 +95,8 @@ def is_excluded(package):
         "kernel-tools",  # In RHEL kernel-tools is a sub-package of kernel
         "ipa",  # freeipa is rename ipa in ELN
         "rubygems",  # In RHEL rubygems is a sub-package of ruby
+        "rubygem-json",  # In RHEL rubygem-json is a sub-package of ruby
+        "rubygem-rake",  # In RHEL rubygem-rake is a sub-package of ruby
         "shim",  # shim has its own building proceedure
         "gcc",  # ELN will use GCC 11 snapshots earlier than rawhide
     ]
