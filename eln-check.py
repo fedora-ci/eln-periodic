@@ -96,7 +96,11 @@ def is_excluded(package):
         "ipa",  # freeipa is rename ipa in ELN
         "rubygems",  # In RHEL rubygems is a sub-package of ruby
         "rubygem-json",  # In RHEL rubygem-json is a sub-package of ruby
+        "rubygem-minitest",  # In RHEL rubygem-minitest is a sub-package of ruby
+        "rubygem-power_assert",  # In RHEL rubygem-power_assert is a sub-package of ruby
         "rubygem-rake",  # In RHEL rubygem-rake is a sub-package of ruby
+        "rubygem-rdoc",  # In RHEL rubygem-rdoc is a sub-package of ruby
+        "rubygem-test-unit",  # In RHEL rubygem-test-unit is a sub-package of ruby
         "shim",  # shim has its own building proceedure
         "gcc",  # ELN will use GCC 11 snapshots earlier than rawhide
     ]
