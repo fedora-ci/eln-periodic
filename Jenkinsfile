@@ -1,13 +1,5 @@
 #!groovy
 
-def podYAML = '''
-spec:
-  containers:
-  - name: koji
-    image: quay.io/bookwar/koji-client:0.0.2
-    tty: true
-'''
-
 def buildableFile = 'buildable-eln-packages.txt'
 def dataFile = 'to_rebuild.txt'
 def untagFile = 'to_untag.txt'
@@ -16,12 +8,7 @@ def statusRenderedFile = 'status.html'
 def successrateFile = 'successrate.html'
 
 pipeline {
-    agent {
-        kubernetes {
-            yaml podYAML
-            defaultContainer 'koji'
-        }
-    }
+    agent { label 'eln' }
 
     options {
         buildDiscarder(
@@ -49,6 +36,7 @@ pipeline {
     stages {
         stage('New stats') {
             steps {
+                cleanWs deleteDirs: true
                 checkout changelog: false, poll: false, scm: [
             $class: 'GitSCM',
             doGenerateSubmoduleConfigurations: false,
@@ -70,7 +58,8 @@ pipeline {
         }
         stage('Collect stats') {
             steps {
-                sh "./eln-check.py -o $dataFile -s $statusFile -u $untagFile -r $successrateFile"
+                git "https://github.com/fedora-ci/eln-periodic.git"
+                sh "$WORKSPACE/eln-check.py -o $dataFile -s $statusFile -u $untagFile -r $successrateFile"
             }
         }
         stage('Trigger builds') {
