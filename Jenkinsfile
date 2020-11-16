@@ -17,97 +17,97 @@ def successrateFile = 'successrate.html'
 
 pipeline {
     agent {
-	kubernetes {
-	    yaml podYAML
-	    defaultContainer 'koji'
-	}
+        kubernetes {
+            yaml podYAML
+            defaultContainer 'koji'
+        }
     }
 
     options {
-	buildDiscarder(
-	    logRotator(
-		numToKeepStr: '30',
-		artifactNumToKeepStr: '30'
-	    )
-	)
-	disableConcurrentBuilds()
+        buildDiscarder(
+        logRotator(
+        numToKeepStr: '30',
+        artifactNumToKeepStr: '30'
+        )
+    )
+        disableConcurrentBuilds()
     }
 
     triggers {
-	cron('H/30 * * * *')
+        cron('H/30 * * * *')
     }
 
     parameters {
-	string(
-	name: 'LIMIT',
-	defaultValue: '10',
-	trim: true,
-	description: 'Number of builds to trigger. No for no builds.'
-	)
+        string(
+    name: 'LIMIT',
+    defaultValue: '10',
+    trim: true,
+    description: 'Number of builds to trigger. No for no builds.'
+    )
     }
 
     stages {
-	stage('New stats') {
-	    steps {
-		checkout changelog: false, poll: false, scm: [
-		    $class: 'GitSCM',
-		    doGenerateSubmoduleConfigurations: false,
-		    extensions: [
-			[
-			    $class: 'RelativeTargetDirectory',
-			    relativeTargetDir: 'eln'
-			]
-		    ],
-		    userRemoteConfigs: [
-			[
-			    url: 'https://github.com/fedora-eln/eln'
-			]
-		    ]
-		]
+        stage('New stats') {
+            steps {
+                checkout changelog: false, poll: false, scm: [
+            $class: 'GitSCM',
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [
+            [
+                $class: 'RelativeTargetDirectory',
+                relativeTargetDir: 'eln'
+            ]
+            ],
+            userRemoteConfigs: [
+            [
+                url: 'https://github.com/fedora-eln/eln'
+            ]
+            ]
+        ]
 
-		sh "cd eln/ && ./compare/compare.py rawhide eln"
-	    }
-	}
-	stage('Collect stats') {
-	    steps {
-		sh "./eln-check.py -o $dataFile -s $statusFile -u $untagFile -r $successrateFile"
-	    }
-	}
-	stage('Trigger builds') {
-	    steps {
-		script {
-		    limit = params.LIMIT.toInteger()
-		    if (limit == 0) {
-			return
-		    }
+                sh 'cd eln/ && ./compare/compare.py rawhide eln'
+            }
+        }
+        stage('Collect stats') {
+            steps {
+                sh "./eln-check.py -o $dataFile -s $statusFile -u $untagFile -r $successrateFile"
+            }
+        }
+        stage('Trigger builds') {
+            steps {
+                script {
+                    limit = params.LIMIT.toInteger()
+                    if (limit == 0) {
+                        return
+                    }
 
-		    def data = readFile dataFile
-		    def builds = data.readLines()
+                    def data = readFile dataFile
+                    def builds = data.readLines()
 
-		    cut = Math.min(builds.size(), limit)
+                    cut = Math.min(builds.size(), limit)
 
-		    Collections.shuffle(builds)
+                    Collections.shuffle(builds)
 
-		    toRebuild = builds[0..<cut]
+                    toRebuild = builds[0..<cut]
 
-		    toRebuild.each {
-			echo "Rebuilding $it"
-			build (
-			    job: 'eln-build-pipeline',
-			    wait: false,
-			    parameters:
-				[
-				string(name: 'KOJI_BUILD_ID', value: "$it"),
-			    ]
-			)
-		    }
-		}
-	    }
-	}
+                    toRebuild.each {
+                        echo "Rebuilding $it"
+                        build (
+                job: 'eln-build-pipeline',
+                wait: false,
+                parameters:
+                [
+                string(name: 'KOJI_BUILD_ID', value: "$it"),
+                ]
+            )
+                    }
+                }
+            }
+        }
     }
     post {
-	success {
-	    archiveArtifacts artifacts: "$dataFile,$statusFile,$statusRenderedFile,$untagFile,$successrateFile,$buildableFile,eln/output/*"
-	}
+        success {
+            archiveArtifacts artifacts: "$dataFile,$statusFile,$statusRenderedFile,$untagFile,$successrateFile,$buildableFile,eln/output/*"
+        }
     }
 }
