@@ -11,9 +11,11 @@ pipeline {
     agent { label 'eln' }
 
     options {
+        // Big number of archive tasks made DOS for Jenkins master
         buildDiscarder(
         logRotator(
         numToKeepStr: '30',
+        numToKeepStr: '300',
         artifactNumToKeepStr: '30'
         )
     )
