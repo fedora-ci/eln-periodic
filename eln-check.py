@@ -102,7 +102,6 @@ def is_excluded(package):
         "rubygem-rdoc",  # In RHEL rubygem-rdoc is a sub-package of ruby
         "rubygem-test-unit",  # In RHEL rubygem-test-unit is a sub-package of ruby
         "shim",  # shim has its own building proceedure
-        "gcc",  # ELN will use GCC 11 snapshots earlier than rawhide
     ]
     exclude_prefix = [
         "shim-",
