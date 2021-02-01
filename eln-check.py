@@ -93,7 +93,6 @@ def is_excluded(package):
         "kernel",  # it takes too much infra resources to try kernel builds automatically
         "kernel-headers",  # In RHEL kernel-headers is a sub-package of kernel
         "kernel-tools",  # In RHEL kernel-tools is a sub-package of kernel
-        "ipa",  # freeipa is rename ipa in ELN
         "rubygems",  # In RHEL rubygems is a sub-package of ruby
         "rubygem-json",  # In RHEL rubygem-json is a sub-package of ruby
         "rubygem-minitest",  # In RHEL rubygem-minitest is a sub-package of ruby
@@ -120,7 +119,6 @@ def is_on_hold(package):
     Return True if package is temporarily on hold from rebuild automation.
     """
     hold = [
-        "freeipa", # freeipa always shows up that it needs to be built
     ]
     hold_prefix = [
     ]
