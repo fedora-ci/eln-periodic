@@ -286,6 +286,7 @@ if __name__ == "__main__":
 
     logging.info("Total differences {0}".format(counter))
     os.system("sort -u -o %s %s" % (args.status, args.status))
+    os.system("sort -u -o %s %s" % (args.untag, args.untag))
 
     # Create Webpage
     color_same = "#00FF00"
