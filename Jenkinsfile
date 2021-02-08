@@ -21,16 +21,16 @@ pipeline {
     }
 
     triggers {
-        cron('H/30 * * * *')
+	cron('H * * * *')
     }
 
     parameters {
-        string(
-    name: 'LIMIT',
-    defaultValue: '10',
-    trim: true,
-    description: 'Number of builds to trigger. No for no builds.'
-    )
+	string(
+	name: 'LIMIT',
+	defaultValue: '5',
+	trim: true,
+	description: 'Number of builds to trigger. No for no builds.'
+	)
     }
 
     stages {
