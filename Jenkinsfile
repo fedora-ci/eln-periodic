@@ -53,7 +53,7 @@ pipeline {
             ]
         ]
 
-                sh 'cd eln/ && ./compare/compare.py rawhide eln'
+                sh 'cd eln/ && ./compare/compare.py rawhide eln && ./scripts/eln-compose-status.py'
             }
         }
         stage('Collect stats') {
