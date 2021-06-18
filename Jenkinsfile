@@ -6,6 +6,7 @@ def untagFile = 'to_untag.txt'
 def statusFile = 'status.txt'
 def statusRenderedFile = 'status.html'
 def successrateFile = 'successrate.html'
+def composestatusFile = 'eln/output/compose-status.html'
 
 pipeline {
     agent { label 'eln' }
@@ -96,7 +97,7 @@ pipeline {
     }
     post {
         success {
-            archiveArtifacts artifacts: "$dataFile,$statusFile,$statusRenderedFile,$untagFile,$successrateFile,$buildableFile,eln/output/*"
+            archiveArtifacts artifacts: "$dataFile,$statusFile,$statusRenderedFile,$untagFile,$successrateFile,$buildableFile,$composestatusFile,eln/output/*"
         }
     }
 }
