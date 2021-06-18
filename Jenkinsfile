@@ -6,7 +6,7 @@ def untagFile = 'to_untag.txt'
 def statusFile = 'status.txt'
 def statusRenderedFile = 'status.html'
 def successrateFile = 'successrate.html'
-def composestatusFile = 'eln/output/compose-status.html'
+def composestatusFile = 'compose-status.html'
 
 pipeline {
     agent { label 'eln' }
@@ -54,7 +54,7 @@ pipeline {
             ]
         ]
 
-                sh 'cd eln/ && ./compare/compare.py rawhide eln && ./scripts/eln-compose-status.py'
+                sh 'cd eln/ && ./compare/compare.py rawhide eln && cd .. && eln/scripts/eln-compose-status.py'
             }
         }
         stage('Collect stats') {
