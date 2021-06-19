@@ -37,7 +37,7 @@ pipeline {
     stages {
         stage('New stats') {
             steps {
-                cleanWs deleteDirs: true
+                cleanWs deleteDirs: false
                 checkout changelog: false, poll: false, scm: [
             $class: 'GitSCM',
             doGenerateSubmoduleConfigurations: false,
