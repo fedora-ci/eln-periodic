@@ -63,37 +63,6 @@ pipeline {
                 sh "$WORKSPACE/eln-check.py -o $dataFile -s $statusFile -u $untagFile -r $successrateFile"
             }
         }
-        stage('Trigger builds') {
-            steps {
-                script {
-                    limit = params.LIMIT.toInteger()
-                    if (limit == 0) {
-                        return
-                    }
-
-                    def data = readFile dataFile
-                    def builds = data.readLines()
-
-                    cut = Math.min(builds.size(), limit)
-
-                    Collections.shuffle(builds)
-
-                    toRebuild = builds[0..<cut]
-
-                    toRebuild.each {
-                        echo "Rebuilding $it"
-                        build (
-                job: 'eln-build-pipeline',
-                wait: false,
-                parameters:
-                [
-                string(name: 'KOJI_BUILD_ID', value: "$it"),
-                ]
-            )
-                    }
-                }
-            }
-        }
     }
     post {
         success {
