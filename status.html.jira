@@ -26,6 +26,12 @@
         <td>Rawhide and ELN builds are caught up</td>
       </tr>
       <tr>
+        <td bgcolor="#AAFFFF">FEDONLY</td>
+        <td style="text-align:right">{{ count_fedonly }}</td>
+        <td style="text-align:right">{{ percent_fedonly }}</td>
+        <td>ELN build is older than Rawhides</td>
+      </tr>
+      <tr>
         <td bgcolor="#FFFFCC">OLD</td>
         <td style="text-align:right">{{ count_old }}</td>
         <td style="text-align:right">{{ percent_old }}</td>

@@ -145,12 +145,15 @@ def diff_with_rawhide(package, eln_build=None, rawhide_build=None):
 
     if not eln_build:
         logging.debug("No build found for {0} in ELN".format(package))
-        return package, rawhide_build, None
+        return package, rawhide_build, None, None
 
     logging.debug("Checking {0}".format(eln_build))
 
+    if rawhide_build['nvr'] == eln_build['nvr']:
+        return package, rawhide_build, eln_build, "FEDONLY"
+
     if is_higher(evr(rawhide_build), evr(eln_build)):
-        return package, rawhide_build, eln_build
+        return package, rawhide_build, eln_build, None
 
     return None
 
@@ -231,7 +234,10 @@ if __name__ == "__main__":
                 counter += 1
                 logging.info("Difference found: {0} {1}".format(diff[1]['nvr'], diff[2]['nvr']))
                 f.write("{0}\n".format(diff[1]['build_id']))
-            if diff[2]:
+            if diff[3]:
+                build_status = "FEDONLY"
+                eln_nvr = eln_build['nvr']
+            elif diff[2]:
                 build_status = "OLD"
             else:
                 build_status = "NONE"
@@ -270,7 +276,10 @@ if __name__ == "__main__":
             else:
                 diff = diff_with_rawhide(package_name, eln_build=eln_build, rawhide_build=rawhide_build)
                 if diff:
-                    if diff[2]:
+                    if diff[3]:
+                        build_status = "FEDONLY"
+                        eln_nvr = eln_build['nvr']
+                    elif diff[2]:
                         build_status = "OLD"
                         eln_nvr = eln_build['nvr']
                     else:
@@ -293,6 +302,7 @@ if __name__ == "__main__":
     # Create Webpage
     color_same = "#00FF00"
     color_old = "#FFFFCC"
+    color_fedonly = "#AAFFFF"
     color_none = "#FF0000"
     with open('status.html.jira') as f:
         status_tmpl = Template(f.read())
@@ -302,6 +312,7 @@ if __name__ == "__main__":
     package_list = []
     counter_same = 0
     counter_old = 0
+    counter_fedonly = 0
     counter_none = 0
     for package_line in status_packagelist:
         ps = package_line.split()
@@ -316,18 +327,23 @@ if __name__ == "__main__":
         elif ps[1] == "OLD":
             this_package['color'] = color_old
             counter_old += 1
+        elif ps[1] == "FEDONLY":
+            this_package['color'] = color_fedonly
+            counter_fedonly += 1
         else:
             this_package['color'] = color_none
             counter_none += 1
         package_list.append(this_package)
-    counter_total = counter_same + counter_old + counter_none
+    counter_total = counter_same + counter_old + counter_none + counter_fedonly
     if counter_total == 0:
         percentage_same = "?%"
         percentage_old = "?%"
+        percentage_fedonly = "?%"
         percentage_none = "?%"
     else:
         percentage_same = "{:.2%}".format(counter_same / counter_total)
         percentage_old = "{:.2%}".format(counter_old / counter_total)
+        percentage_fedonly = "{:.2%}".format(counter_fedonly / counter_total)
         percentage_none = "{:.2%}".format(counter_none / counter_total)
     with open(args.webpage, 'w') as w:
         w.write(status_tmpl.render(
@@ -336,6 +352,8 @@ if __name__ == "__main__":
             percent_same=percentage_same,
             count_old=counter_old,
             percent_old=percentage_old,
+            count_fedonly=counter_fedonly,
+            percent_fedonly=percentage_fedonly,
             count_none=counter_none,
             percent_none=percentage_none,
             count_total=counter_total,
